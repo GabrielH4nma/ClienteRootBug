@@ -5,7 +5,7 @@ using TMPro;
 
 public class IncrementRecurso : MonoBehaviour
 {
-    private int _coins;
+    public int _coins;
     [SerializeField] private int _coinsMultiplier;
     [SerializeField] private TMP_Text _coinsText;
     [SerializeField] private GameObject _clickFX;
