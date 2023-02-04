@@ -31,7 +31,9 @@ public class IncrementRecurso : MonoBehaviour
 
     public void IncrementCoins()
     {
-        Instantiate(_clickFX, botao.transform.position, Quaternion.identity);
+        Vector3 particlePosition = botao.transform.position;
+        particlePosition.z += 1;
+        GameObject particleInstance = Instantiate(_clickFX, particlePosition, Quaternion.identity);
         _coins += _coinsMultiplier;
         PlayerPrefs.SetInt("coins", _coins);
         _coinsText.text = _coins.ToString();
