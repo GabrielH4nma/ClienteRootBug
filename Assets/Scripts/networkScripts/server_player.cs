@@ -94,11 +94,7 @@ public class server_player : MonoBehaviour
         nomeDoPlayer = gt.inputField.GetComponent<TextMeshProUGUI>().text;
 
         ip = ip.Substring(0, ip.Length - 1);
-        Debug.Log(ip);
 
-        Debug.Log(ip.Length);
-        Debug.Log("192.168.139.206".Length);
-        Debug.Log(ip == "192.168.139.206");
 
         var endpoint = NetworkEndPoint.Parse(ip, 9000);
 
@@ -110,6 +106,13 @@ public class server_player : MonoBehaviour
         iamLogin = true;
     }
 
+
+    public void Logout()
+    {
+        m_Driver.BeginSend(m_Connection, out var writer);
+        writer.WriteFixedString32("L");
+        m_Driver.EndSend(writer);
+    }
 
     public void escolhePlanta(int planta)
     {
@@ -182,4 +185,7 @@ public class server_player : MonoBehaviour
        writer.WriteFixedString32("Sun" + ";" + ir._coins);
       m_Driver.EndSend(writer);
     }
+
+
+   
 }
