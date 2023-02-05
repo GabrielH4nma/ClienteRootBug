@@ -179,10 +179,10 @@ public class server_player : MonoBehaviour
             
     }
 
-    public void sendSun()
+    public void sendWater()
     {
        m_Driver.BeginSend(m_Connection, out var writer);
-       writer.WriteFixedString32("Sun" + ";" + ir._coins);
+       writer.WriteFixedString32("W" + ";" + ir._coins);
       m_Driver.EndSend(writer);
     }
 
