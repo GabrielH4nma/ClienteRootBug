@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using TMPro;
 using Unity.Networking.Transport;
 using UnityEngine;
 
@@ -14,16 +15,22 @@ public class server_player : MonoBehaviour
     public int laneFinal;
     public string plant;
 
+    public GetText gt;
+
     public IncrementRecurso ir;
+
+    public sceneManager sceneManager;
+
+
+    public string nomeDoPlayer;
+
+    public bool iamLogin;
 
     void Start()
     {
+        iamLogin = false;
         m_Driver = NetworkDriver.Create();
         m_Connection = default(NetworkConnection);
-
-        var endpoint = NetworkEndPoint.Parse("192.168.54.206", 9000);
-
-        m_Connection = m_Driver.Connect(endpoint);
     }
 
     public void OnDestroy()
@@ -33,7 +40,10 @@ public class server_player : MonoBehaviour
 
     void Update()
     {
-        m_Driver.ScheduleUpdate().Complete();
+
+        if (iamLogin)
+        {
+             m_Driver.ScheduleUpdate().Complete();
 
 
 
@@ -46,18 +56,22 @@ public class server_player : MonoBehaviour
             {
                 Debug.Log("We are now connected to the server");
 
-                string value = "mandei";
-                m_Driver.BeginSend(m_Connection, out var writer);
-                writer.WriteFixedString32(value);
-                m_Driver.EndSend(writer);
+                // string value = "mandei";
+                //m_Driver.BeginSend(m_Connection, out var writer);
+                //writer.WriteFixedString32(value);
+                //m_Driver.EndSend(writer);
+               
             }
             else if (cmd == NetworkEvent.Type.Data)
             {
-                //uint value = stream.ReadUInt();
-                //Debug.Log("Got the value = " + value + " back from the server");
-                m_Done = true;
-                m_Connection.Disconnect(m_Driver);
-                m_Connection = default(NetworkConnection);
+                print("ENTREI");
+                
+                string value  = stream.ReadFixedString32().ToString();
+
+                UpdateMyResources(value);
+
+                Debug.Log("Got the value = " + value + " back from the server");
+          
             }
             else if (cmd == NetworkEvent.Type.Disconnect)
             {
@@ -65,6 +79,35 @@ public class server_player : MonoBehaviour
                 m_Connection = default(NetworkConnection);
             }
         }
+        }
+       
+    }
+
+
+
+    //LOGIN
+    public void Login()
+    {
+   
+
+        string ip = gt.inputFieldIP.GetComponent<TextMeshProUGUI>().text; 
+        nomeDoPlayer = gt.inputField.GetComponent<TextMeshProUGUI>().text;
+
+        ip = ip.Substring(0, ip.Length - 1);
+        Debug.Log(ip);
+
+        Debug.Log(ip.Length);
+        Debug.Log("192.168.139.206".Length);
+        Debug.Log(ip == "192.168.139.206");
+
+        var endpoint = NetworkEndPoint.Parse(ip, 9000);
+
+        m_Connection = m_Driver.Connect(endpoint);
+
+        //TODO devolver O SUCESSO OU NAO
+
+        sceneManager.VisualLogin();
+        iamLogin = true;
     }
 
 
@@ -74,13 +117,13 @@ public class server_player : MonoBehaviour
         string value = "nada";
         switch (planta)
         {
-            case 1:
+            case 0:
                 value = "0";
                 break;
-            case 2:
+            case 1:
                 value = "1";
                 break;
-            case 3:
+            case 2:
                 value = "2";
                 break;
             default:
@@ -88,9 +131,9 @@ public class server_player : MonoBehaviour
         }
 
         plant = value;
-        //  m_Driver.BeginSend(m_Connection, out var writer);
-        // writer.WriteFixedString32(value+";"+"Lane"+laneFinal);
-        // m_Driver.EndSend(writer);
+        m_Driver.BeginSend(m_Connection, out var writer);
+        writer.WriteFixedString32(value+";"+"Lane"+laneFinal);
+        m_Driver.EndSend(writer);
     }
 
     public void escolherLane(int lane)
@@ -99,7 +142,7 @@ public class server_player : MonoBehaviour
         if (plant != "")
         {
             m_Driver.BeginSend(m_Connection, out var writer);
-            writer.WriteFixedString32(plant + ";" + lane +";"+ ir._coins.ToString());
+            writer.WriteFixedString32("P;"+plant + ";" + lane +";"+ ir._coins.ToString());
             m_Driver.EndSend(writer);
 
         }
@@ -109,11 +152,34 @@ public class server_player : MonoBehaviour
     }
 
 
+    //TODO do this tommorrow 
+    public void UpdateMyResources(string msg) { 
+    
+    if(msg.Substring(0, 1) == "R")
+        {
+            string result = msg.Split("R")[1]; 
+            
+            string coins = result.Split("/")[0];
+            string water = result.Split("/")[1];
+            string seeds = result.Split("/")[2];
+       
+        
+            ir._coins = int.Parse(coins);
+            ir._minerals= int.Parse(seeds);
+            ir._sol = int.Parse(water);
+
+
+            ir._solText.text = ir._sol.ToString();
+            ir._mineralsText.text = ir._minerals.ToString();
+            ir._coinsText.text = ir._coins.ToString();
+        }
+            
+    }
 
     public void sendSun()
     {
-       // m_Driver.BeginSend(m_Connection, out var writer);
-       // writer.WriteFixedString32("Sun" + ir._coins);
-      //  m_Driver.EndSend(writer);
+       m_Driver.BeginSend(m_Connection, out var writer);
+       writer.WriteFixedString32("Sun" + ";" + ir._coins);
+      m_Driver.EndSend(writer);
     }
 }

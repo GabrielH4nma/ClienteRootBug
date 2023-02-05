@@ -5,9 +5,22 @@ using TMPro;
 
 public class IncrementRecurso : MonoBehaviour
 {
-    public int _coins;
+    public int _coins; //agua
+
+    public int _minerals = 10; 
+    public int _sol =10;
+
+
+    private float timer = 0f;
+    public float delayAmount;
+
     [SerializeField] private int _coinsMultiplier;
-    [SerializeField] private TMP_Text _coinsText;
+    [SerializeField] public TMP_Text _coinsText;
+
+    [SerializeField] public TMP_Text _mineralsText;
+    [SerializeField] public TMP_Text _solText;
+
+
     [SerializeField] private GameObject _clickFX;
     [SerializeField] private RectTransform _buttonPosition;
     public GameObject botao;
@@ -28,6 +41,8 @@ public class IncrementRecurso : MonoBehaviour
     {
         
     }*/
+
+
 
     public void IncrementCoins()
     {
